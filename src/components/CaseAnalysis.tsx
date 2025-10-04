@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { Card, CardHeader, CardContent, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import { Badge } from "./ui/badge";
@@ -111,8 +110,8 @@ const CaseAnalysis = () => {
 		let recommendedActions: string[] = [];
 		let potentialRisks: string[] = [];
 		let nextSteps: string[] = [];
-		let estimatedCosts = "Consult with a lawyer for cost estimates";
-		let timeline = "Timeline depends on case complexity";
+		const estimatedCosts = "Consult with a lawyer for cost estimates";
+		const timeline = "Timeline depends on case complexity";
 
 		response.content.forEach((item) => {
 			switch (item.type) {

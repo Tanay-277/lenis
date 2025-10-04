@@ -32,7 +32,6 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "./ui/tooltip";
-import { Alert, AlertDescription } from "./ui/alert";
 
 interface Message {
 	type: "user" | "ai" | "error" | "rate_limit";
