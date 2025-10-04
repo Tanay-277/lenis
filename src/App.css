@@ -1,0 +1,109 @@
+/* Premium Animations and Effects */
+
+.premium-card-hover {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-card-hover:hover {
+	transform: translateY(-2px);
+	box-shadow: 
+		0 0 0 1px rgba(99, 102, 241, 0.1),
+		0 4px 6px rgba(99, 102, 241, 0.1),
+		0 20px 40px rgba(99, 102, 241, 0.15);
+}
+
+.dark .premium-card-hover:hover {
+	box-shadow: 
+		0 0 0 1px rgba(96, 165, 250, 0.15),
+		0 4px 6px rgba(96, 165, 250, 0.15),
+		0 20px 40px rgba(96, 165, 250, 0.2);
+}
+
+/* Message bubble effects */
+.message-bubble {
+	position: relative;
+	overflow: hidden;
+}
+
+.message-bubble::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(255, 255, 255, 0.1),
+		transparent
+	);
+	transition: left 0.5s;
+}
+
+.message-bubble:hover::before {
+	left: 100%;
+}
+
+/* Gradient text animation */
+@keyframes gradient-shift {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.animate-gradient {
+	background-size: 200% 200%;
+	animation: gradient-shift 3s ease infinite;
+}
+
+/* Input focus effects */
+.premium-input:focus-within {
+	box-shadow: 
+		0 0 0 3px rgba(99, 102, 241, 0.1),
+		0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.dark .premium-input:focus-within {
+	box-shadow: 
+		0 0 0 3px rgba(96, 165, 250, 0.15),
+		0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading animation */
+@keyframes shimmer {
+	0% {
+		background-position: -468px 0;
+	}
+	100% {
+		background-position: 468px 0;
+	}
+}
+
+.skeleton-loader {
+	animation: shimmer 1.2s ease-in-out infinite;
+	background: linear-gradient(
+		to right,
+		#f0f0f0 0%,
+		#e0e0e0 20%,
+		#f0f0f0 40%,
+		#f0f0f0 100%
+	);
+	background-size: 800px 104px;
+}
+
+.dark .skeleton-loader {
+	background: linear-gradient(
+		to right,
+		#1a1f35 0%,
+		#252b45 20%,
+		#1a1f35 40%,
+		#1a1f35 100%
+	);
+}

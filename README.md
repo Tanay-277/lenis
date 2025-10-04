@@ -1,6 +1,6 @@
 # Lenis
 
-Lenis is a small React + TypeScript frontend that integrates Google Gemini (Generative AI) for legal-advice style responses. It uses Vite for development and Tailwind for styling. The app includes rate-limiting and model fallback logic to safely interact with Gemini.
+ठप्पा is a small React + TypeScript frontend that integrates Google Gemini (Generative AI) for legal-advice style responses. It uses Vite for development and Tailwind for styling. The app includes rate-limiting and model fallback logic to safely interact with Gemini.
 
 ## Features
 - React 19 + TypeScript

@@ -20,12 +20,10 @@ import {
 	getTimeUntilNextRequest,
 } from "../utils/gemini";
 
-import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Card, CardContent } from "./ui/card";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
 import {
 	Tooltip,
 	TooltipContent,
@@ -40,11 +38,7 @@ interface Message {
 	structuredResponse?: StructuredChatResponse;
 }
 
-const messageVariants = {
-	hidden: { opacity: 0, y: 20 },
-	visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-	exit: { opacity: 0, x: -10, transition: { duration: 0.2 } },
-};
+
 
 const SYSTEM_INSTRUCTION = `
 You are a professional legal advisor assistant focused on Indian legal systems.
@@ -58,7 +52,6 @@ const ChatInterface = () => {
 	const [input, setInput] = useState("");
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [activeSuggestion, setActiveSuggestion] = useState<string | null>(null);
 	const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
 	const [rateLimitCountdown, setRateLimitCountdown] = useState<number>(0);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -138,19 +131,20 @@ const ChatInterface = () => {
 				structuredResponse,
 			};
 			setMessages((prev) => [...prev, aiMessage]);
-		} catch (error: any) {
+		} catch (error) {
 			console.error("Error getting AI response:", error);
 
 			let errorMessage: Message;
+			const errorObj = error as Error;
 
 			if (
-				error.message?.includes("Rate limit") ||
-				error.message?.includes("quota")
+				errorObj.message?.includes("Rate limit") ||
+				errorObj.message?.includes("quota")
 			) {
 				errorMessage = {
 					type: "rate_limit",
 					content:
-						error.message ||
+						errorObj.message ||
 						"Rate limit exceeded. Please wait before making another request.",
 					timestamp: new Date(),
 				};
@@ -227,20 +221,21 @@ const ChatInterface = () => {
 		switch (item.type) {
 			case "text":
 				return (
-					<p key={index} className="mb-3 text-foreground">
+					<p key={index} className="mb-4 text-foreground leading-relaxed text-[15px]">
 						{item.content}
 					</p>
 				);
 
 			case "list":
 				return (
-					<div key={index} className="mb-4">
+					<div key={index} className="mb-5">
 						{item.title && (
-							<h4 className="text-sm font-medium mb-1.5">{item.title}</h4>
+							<h4 className="text-sm font-semibold mb-2.5 text-foreground/90">{item.title}</h4>
 						)}
-						<ul className="space-y-1 list-disc pl-5">
+						<ul className="space-y-2">
 							{item.items?.map((listItem, i) => (
-								<li key={i} className="text-foreground">
+								<li key={i} className="flex items-start gap-2.5 text-foreground/80 text-[15px]">
+									<span className="w-1.5 h-1.5 rounded-full bg-gradient-to-br from-primary to-secondary mt-2 shrink-0" />
 									{listItem}
 								</li>
 							))}
@@ -250,66 +245,83 @@ const ChatInterface = () => {
 
 			case "suggestion":
 				return (
-					<div
+					<motion.div
 						key={index}
-						className="flex items-start gap-2 mb-3 p-2 bg-primary/5 dark:bg-primary/10 border-l-2 border-primary rounded-sm"
+						initial={{ opacity: 0, x: -10 }}
+						animate={{ opacity: 1, x: 0 }}
+						className="flex items-start gap-3 mb-4 p-4 bg-gradient-to-r from-primary/5 to-secondary/5 border-l-4 border-primary rounded-xl"
 					>
-						<HiOutlineLightBulb className="text-primary dark:text-secondary-400 mt-0.5 shrink-0" />
-						<p className="text-foreground text-sm">{item.content}</p>
-					</div>
+						<div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center shrink-0">
+							<HiOutlineLightBulb className="text-white text-lg" />
+						</div>
+						<p className="text-foreground text-[15px] leading-relaxed">{item.content}</p>
+					</motion.div>
 				);
 
 			case "warning":
 				return (
-					<div
+					<motion.div
 						key={index}
-						className="flex items-start gap-2 mb-3 p-2 bg-destructive/5 border-l-2 border-destructive rounded-sm"
+						initial={{ opacity: 0, x: -10 }}
+						animate={{ opacity: 1, x: 0 }}
+						className="flex items-start gap-3 mb-4 p-4 bg-gradient-to-r from-destructive/5 to-destructive/10 border-l-4 border-destructive rounded-xl"
 					>
-						<FiAlertTriangle className="text-destructive mt-0.5 shrink-0" />
-						<p className="text-destructive dark:text-destructive text-sm">
+						<div className="w-8 h-8 rounded-lg bg-gradient-to-br from-destructive/20 to-destructive/10 flex items-center justify-center shrink-0">
+							<FiAlertTriangle className="text-destructive text-lg" />
+						</div>
+						<p className="text-destructive text-[15px] leading-relaxed">
 							{item.content}
 						</p>
-					</div>
+					</motion.div>
 				);
 
 			case "resource":
 				return (
-					<div
+					<motion.div
 						key={index}
-						className="mb-3 p-2 border border-border/60 rounded-md"
+						initial={{ opacity: 0, scale: 0.95 }}
+						animate={{ opacity: 1, scale: 1 }}
+						className="mb-4 p-4 border border-border rounded-xl bg-card/50 hover:border-primary/50 transition-all duration-300 premium-card-hover"
 					>
-						<div className="flex items-center gap-2 mb-1">
-							<FiLink className="text-primary dark:text-secondary-400 shrink-0" />
-							<h4 className="text-sm font-medium">{item.title}</h4>
+						<div className="flex items-center gap-3 mb-2">
+							<div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center">
+								<FiLink className="text-primary text-lg" />
+							</div>
+							<h4 className="text-sm font-semibold text-foreground">{item.title}</h4>
 						</div>
-						<p className="text-sm text-muted-foreground mb-2">{item.content}</p>
+						<p className="text-sm text-muted-foreground mb-3 leading-relaxed">{item.content}</p>
 						<a
 							href={item.url}
 							target="_blank"
 							rel="noopener noreferrer"
-							className="text-xs text-primary dark:text-secondary-400 hover:underline flex items-center gap-1"
+							className="text-sm text-primary hover:text-primary-dark font-medium flex items-center gap-2 group transition-colors"
 						>
 							<span>Visit resource</span>
-							<FiLink className="h-3 w-3" />
+							<FiLink className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
 						</a>
-					</div>
+					</motion.div>
 				);
 
 			case "code":
 				return (
-					<div key={index} className="mb-3 relative">
-						<div className="bg-muted/80 dark:bg-muted/50 rounded-t-md px-3 py-1.5 text-xs font-mono flex items-center justify-between border border-border/60">
-							<div className="flex items-center gap-1.5">
-								<FiCode className="h-3.5 w-3.5 text-muted-foreground" />
-								<span>{item.language || "code"}</span>
+					<motion.div 
+						key={index} 
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						className="mb-4 relative overflow-hidden rounded-xl border border-border/50 shadow-premium"
+					>
+						<div className="bg-gradient-to-r from-muted to-muted/50 backdrop-blur-sm px-4 py-2.5 text-xs font-mono flex items-center justify-between border-b border-border/50">
+							<div className="flex items-center gap-2">
+								<FiCode className="h-4 w-4 text-primary" />
+								<span className="font-semibold text-foreground">{item.language || "code"}</span>
 							</div>
 						</div>
-						<pre className="p-3 bg-muted/30 dark:bg-muted/20 border border-t-0 border-border/60 rounded-b-md overflow-x-auto">
-							<code className="text-xs sm:text-sm font-mono text-foreground whitespace-pre">
+						<pre className="p-4 bg-muted/20 overflow-x-auto">
+							<code className="text-sm font-mono text-foreground/90 whitespace-pre leading-relaxed">
 								{item.content}
 							</code>
 						</pre>
-					</div>
+					</motion.div>
 				);
 
 			default:
@@ -318,80 +330,85 @@ const ChatInterface = () => {
 	};
 
 	return (
-		<div className="h-full flex flex-col" aria-label="Chat interface">
-			{/* Rate limit warning */}
-			{/* {rateLimitCountdown > 0 && (
-				<Alert className="mx-4 mt-4 border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20">
-					<FiClock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-					<AlertDescription className="text-amber-800 dark:text-amber-200">
-						Rate limit active. Please wait {rateLimitCountdown} seconds before
-						sending another message.
-					</AlertDescription>
-				</Alert>
-			)} */}
+		<div className="h-full flex flex-col relative" aria-label="Chat interface">
+			{/* Animated Background Gradient */}
 
 			<div
-				className="flex-1 overflow-y-auto scroll-style p-4 space-y-4"
+				className="flex-1 overflow-y-auto p-6 space-y-6 relative z-10"
 				role="log"
 				aria-live="polite"
 				aria-label="Chat conversation"
 			>
 				{messages.length === 0 && (
 					<div
-						className="flex flex-col items-center justify-center h-full text-center space-y-6 text-muted-foreground"
+						className="flex flex-col items-center justify-center h-full text-center space-y-8"
 						aria-label="Welcome to chat"
 					>
 						<motion.div
-							initial={{ scale: 0.9, opacity: 0 }}
-							animate={{ scale: 1, opacity: 1 }}
-							transition={{ duration: 0.5 }}
+							initial={{ scale: 0.8, opacity: 0, y: 20 }}
+							animate={{ scale: 1, opacity: 1, y: 0 }}
+							transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+							className="relative flex flex-col justify-center items-center"
 						>
-							<div className="p-4 rounded-full bg-primary/5 dark:bg-secondary-400/5 mb-4 flex items-center justify-center gap-3">
-								<HiOutlineChatAlt
-									className="text-primary dark:text-secondary-400"
-									size={38}
-									aria-hidden="true"
-								/>
-								<h3 className="text-lg font-medium text-foreground">
-									Chat with your Legal Advisor Assistant
-								</h3>
+							
+							<div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center mb-6 shadow-premium glow-primary">
+								<HiOutlineChatAlt className="text-6xl text-white" />
 							</div>
-							<p className="max-w-md mx-auto text-sm mb-8">
-								Get legal guidance, understand your rights, and navigate legal
-								procedures in India.
-								<span className="block text-xs mt-2 text-yellow-600 dark:text-yellow-400">
-									Note: This is general legal information, not professional
-									legal advice.
-								</span>
+							
+							<h2 className="text-3xl font-display font-bold mb-3 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+								Start a Conversation
+							</h2>
+							<p className="text-base text-muted-foreground max-w-lg mx-auto">
+								Ask me anything about Indian legal matters, rights, procedures, or get guidance on your legal questions.
 							</p>
+							<motion.div 
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								transition={{ delay: 0.3 }}
+								className="mt-4 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-xs text-accent inline-block"
+							>
+								💡 General legal information only • Not professional legal advice
+							</motion.div>
 						</motion.div>
 
-						<div className="grid gap-3 w-full max-w-md">
-							<p className="text-sm font-medium">Try asking about:</p>
-							<div className="grid grid-cols-1 gap-2 w-full place-items-center">
+						<div className="w-full max-w-3xl space-y-4">
+							<p className="text-sm font-semibold text-foreground/80 flex items-center gap-2 justify-center">
+								<HiOutlineLightBulb className="text-lg text-primary" />
+								Popular Questions
+							</p>
+							<div className="grid grid-cols-1 gap-3">
 								{suggestions.map((suggestion, i) => (
 									<motion.div
 										key={i}
-										initial={{ opacity: 0, y: 10 }}
+										initial={{ opacity: 0, y: 20 }}
 										animate={{ opacity: 1, y: 0 }}
-										transition={{ delay: 0.2 + i * 0.1 }}
-										className="w-fit"
+										transition={{ 
+											delay: 0.1 * i,
+											type: "spring",
+											stiffness: 100
+										}}
 									>
-										<Button
-											variant={
-												activeSuggestion === suggestion ? "default" : "outline"
-											}
-											className="w-fit justify-start text-left h-auto py-2.5 px-4 font-normal text-foreground dark:text-foreground "
-											size={"default"}
-											disabled={rateLimitCountdown > 0}
+										<motion.button
+											whileHover={{ scale: 1.02, x: 4 }}
+											whileTap={{ scale: 0.98 }}
 											onClick={() => {
 												setInput(suggestion);
-												setActiveSuggestion(suggestion);
 												inputRef.current?.focus();
 											}}
+											disabled={rateLimitCountdown > 0}
+											className="w-full text-left p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border hover:border-primary/50 hover:bg-card/80 transition-all duration-300 shadow-sm hover:shadow-premium premium-card-hover group"
 										>
-											{suggestion}
-										</Button>
+											<div className="flex items-start gap-3">
+												<div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center shrink-0 group-hover:from-primary/30 group-hover:to-secondary/30 transition-all">
+													<span className="text-sm font-bold bg-gradient-to-br from-primary to-secondary bg-clip-text text-transparent">
+														{i + 1}
+													</span>
+												</div>
+												<span className="text-sm text-foreground/80 group-hover:text-foreground transition-colors leading-relaxed">
+													{suggestion}
+												</span>
+											</div>
+										</motion.button>
 									</motion.div>
 								))}
 							</div>
@@ -400,15 +417,17 @@ const ChatInterface = () => {
 				)}
 
 				{messages.length > 0 && (
-					<div className="space-y-6">
+					<div className="space-y-8 max-w-5xl mx-auto">
 						{messages.map((message, index) => (
 							<motion.div
 								key={index}
-								variants={messageVariants}
-								initial="hidden"
-								animate="visible"
-								exit="exit"
-								layout
+								initial={{ opacity: 0, y: 20, scale: 0.95 }}
+								animate={{ opacity: 1, y: 0, scale: 1 }}
+								transition={{ 
+									duration: 0.4,
+									ease: [0.16, 1, 0.3, 1],
+									delay: 0.05 * index
+								}}
 								aria-label={`${message.type === "user" ? "You" : "AI"}: ${
 									message.content
 								}`}
@@ -421,57 +440,63 @@ const ChatInterface = () => {
 									<div
 										className={`flex ${
 											message.type === "user" ? "flex-row-reverse" : "flex-row"
-										} items-start gap-3 max-w-[85%]`}
+										} items-start gap-4 max-w-[90%]`}
 									>
-										<Avatar className="h-8 w-8 mt-1 border border-dashed border-border/40">
-											<AvatarFallback
-												className={`${
-													message.type === "user"
-														? "bg-primary/10 text-primary"
+										{/* Avatar with premium styling */}
+										<motion.div
+											whileHover={{ scale: 1.1, rotate: 5 }}
+											transition={{ type: "spring", stiffness: 300 }}
+										>
+											<Avatar className="h-10 w-10 mt-1 border-2 border-border shadow-premium">
+												<AvatarFallback
+													className={`${
+														message.type === "user"
+															? "bg-gradient-to-br from-primary to-primary-dark text-white"
 														: message.type === "error"
-														? "bg-destructive/10 text-destructive"
+														? "bg-gradient-to-br from-destructive/20 to-destructive/10 text-destructive"
 														: message.type === "rate_limit"
-														? "bg-amber/10 text-amber-600"
-														: "bg-secondary-400/10 dark:bg-secondary-400/20 text-secondary-700 dark:text-secondary-400"
+														? "bg-gradient-to-br from-amber-500/20 to-amber-600/10 text-amber-600"
+														: "bg-gradient-to-br from-secondary to-accent text-white"
 												}`}
 												aria-label={
 													message.type === "user" ? "Your avatar" : "AI avatar"
 												}
 											>
 												{message.type === "user" ? (
-													<FiUser aria-hidden="true" />
+													<FiUser aria-hidden="true" className="text-lg" />
 												) : message.type === "error" ? (
-													"!"
+													<FiAlertTriangle aria-hidden="true" className="text-lg" />
 												) : message.type === "rate_limit" ? (
-													<FiClock aria-hidden="true" />
+													<FiClock aria-hidden="true" className="text-lg" />
 												) : (
-													<FiCpu aria-hidden="true" />
+													<FiCpu aria-hidden="true" className="text-lg" />
 												)}
 											</AvatarFallback>
 										</Avatar>
+										</motion.div>
 
 										<Card
-											className={`py-0 ${
+											className={`py-0 message-bubble shadow-premium backdrop-blur-sm ${
 												message.type === "user"
-													? "border-primary/20 dark:border-primary/20 bg-primary/5 dark:bg-primary/10"
+													? "border-primary/30 bg-gradient-to-br from-primary/10 to-primary-dark/5"
 													: message.type === "error"
-													? "border-destructive/20 bg-destructive/5"
+													? "border-destructive/30 bg-gradient-to-br from-destructive/10 to-destructive/5"
 													: message.type === "rate_limit"
-													? "border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20"
-													: "border-border/60 dark:border-border/30 bg-card"
+													? "border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-amber-600/5"
+													: "border-border/50 bg-card/80"
 											}`}
 										>
-											<CardContent className="p-3 sm:p-4">
+											<CardContent className="p-5">
 												{message.type === "ai" && (
-													<div className="flex justify-between items-center mb-2">
+													<div className="flex justify-between items-center mb-3">
 														<Badge
 															variant="outline"
-															className="text-xs mb-1 border-secondary-400/30 bg-secondary-400/5 text-secondary-700 dark:text-secondary-300"
+															className="text-xs px-2.5 py-0.5 rounded-full border-secondary/30 bg-gradient-to-r from-secondary/10 to-accent/10 text-secondary font-medium"
 														>
-															AI Assistant
+															✨ AI Assistant
 														</Badge>
 														{message.timestamp && (
-															<span className="text-xs text-muted-foreground">
+															<span className="text-xs text-muted-foreground font-medium">
 																{formatTimestamp(message.timestamp)}
 															</span>
 														)}
@@ -479,15 +504,15 @@ const ChatInterface = () => {
 												)}
 
 												{message.type === "rate_limit" && (
-													<div className="flex justify-between items-center mb-2">
+													<div className="flex justify-between items-center mb-3">
 														<Badge
 															variant="outline"
-															className="text-xs mb-1 border-amber-400/30 bg-amber-400/5 text-amber-700 dark:text-amber-300"
+															className="text-xs px-2.5 py-0.5 rounded-full border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-amber-600/10 text-amber-600 font-medium"
 														>
-															Rate Limit
+															⏱️ Rate Limit
 														</Badge>
 														{message.timestamp && (
-															<span className="text-xs text-muted-foreground">
+															<span className="text-xs text-muted-foreground font-medium">
 																{formatTimestamp(message.timestamp)}
 															</span>
 														)}
@@ -495,8 +520,8 @@ const ChatInterface = () => {
 												)}
 
 												{message.type === "user" && message.timestamp && (
-													<div className="flex justify-end mb-1">
-														<span className="text-xs text-muted-foreground">
+													<div className="flex justify-end mb-2">
+														<span className="text-xs text-muted-foreground/80 font-medium">
 															{formatTimestamp(message.timestamp)}
 														</span>
 													</div>
@@ -543,36 +568,36 @@ const ChatInterface = () => {
 												</div>
 
 												{message.type === "ai" && (
-													<div className="flex justify-end mt-2">
+													<div className="flex justify-end mt-3">
 														<TooltipProvider>
 															<Tooltip>
 																<TooltipTrigger asChild>
-																	<Button
-																		variant="ghost"
-																		size="sm"
-																		className="h-7 w-7 p-0 rounded-full"
+																	<motion.button
+																		whileHover={{ scale: 1.1 }}
+																		whileTap={{ scale: 0.9 }}
 																		onClick={() =>
 																			copyToClipboard(message, index)
 																		}
+																		className="w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors"
 																		aria-label="Copy message to clipboard"
 																	>
 																		{copiedMessageId === index ? (
 																			<FiCheck
-																				className="h-3.5 w-3.5 text-green-500"
+																				className="h-4 w-4 text-green-500"
 																				aria-hidden="true"
 																			/>
 																		) : (
 																			<FiCopy
-																				className="h-3.5 w-3.5 text-muted-foreground"
+																				className="h-4 w-4 text-muted-foreground"
 																				aria-hidden="true"
 																			/>
 																		)}
-																	</Button>
+																	</motion.button>
 																</TooltipTrigger>
-																<TooltipContent side="bottom" align="end">
+																<TooltipContent side="bottom" align="end" className="text-xs">
 																	{copiedMessageId === index
-																		? "Copied!"
-																		: "Copy to clipboard"}
+																		? "✓ Copied!"
+																		: "Copy message"}
 																</TooltipContent>
 															</Tooltip>
 														</TooltipProvider>
@@ -646,65 +671,89 @@ const ChatInterface = () => {
 				)}
 			</div>
 
-			<div className="mt-auto">
-				<Separator className="mb-4 border-dashed" />
-				<div className="px-4 pb-3">
+			<div className="mt-auto relative z-10">
+				<div className="px-6 pb-6 pt-4 bg-gradient-to-t from-background via-background/95 to-transparent">
 					<form
 						onSubmit={handleSubmit}
-						className="flex items-center gap-2"
+						className="max-w-4xl mx-auto"
 						aria-label="Message input form"
 					>
-						<div className="relative flex-1">
-							<Input
-								ref={inputRef}
-								type="text"
-								placeholder={
-									rateLimitCountdown > 0
-										? `Please wait ${rateLimitCountdown}s...`
-										: "Type your legal question..."
-								}
-								value={input}
-								onChange={(e) => setInput(e.target.value)}
-								autoFocus
-								disabled={rateLimitCountdown > 0}
-								className="pr-12 rounded-full"
-								aria-label="Type your legal question"
-							/>
-							<Button
-								type="submit"
-								size="icon"
-								disabled={!input.trim() || isLoading || rateLimitCountdown > 0}
-								className="absolute right-0 top-0 h-full px-3 rounded-l-none"
-								aria-label="Send message"
-							>
-								{rateLimitCountdown > 0 ? (
-									<FiClock
-										className="h-4 w-4 text-muted-foreground"
-										aria-hidden="true"
-									/>
-								) : (
-									<FiSend
-										className={`h-4 w-4 ${
-											!input.trim() || isLoading ? "text-muted-foreground" : ""
+						<div className="relative flex items-center gap-3 premium-input">
+							<div className="flex-1 relative">
+								<Input
+									ref={inputRef}
+									type="text"
+									placeholder={
+										rateLimitCountdown > 0
+											? `⏱️ Please wait ${rateLimitCountdown}s...`
+											: "Ask me anything about legal matters..."
+									}
+									value={input}
+									onChange={(e) => setInput(e.target.value)}
+									autoFocus
+									disabled={rateLimitCountdown > 0 || isLoading}
+									className="rounded-full h-14 px-6 pr-4 border-2 border-border/50 bg-card/80 backdrop-blur-sm text-base   transition-all duration-300 "
+									aria-label="Type your legal question"
+								/>
+								<motion.div 
+									className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2"
+								>
+									{rateLimitCountdown > 0 && (
+										<span className="text-xs font-medium text-amber-600 dark:text-amber-400 px-2">
+											{rateLimitCountdown}s
+										</span>
+									)}
+									<motion.button
+										type="submit"
+										disabled={!input.trim() || isLoading || rateLimitCountdown > 0}
+										whileHover={{ scale: 1.05 }}
+										whileTap={{ scale: 0.95 }}
+										className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+											!input.trim() || isLoading || rateLimitCountdown > 0
+												? "bg-muted text-muted-foreground cursor-not-allowed"
+												: "bg-gradient-to-br from-primary to-secondary text-white shadow-premium hover:shadow-lg glow-primary"
 										}`}
-										aria-hidden="true"
-									/>
-								)}
-							</Button>
+										aria-label="Send message"
+									>
+										{isLoading ? (
+											<motion.div
+												animate={{ rotate: 360 }}
+												transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+											>
+												<FiCpu className="h-5 w-5" />
+											</motion.div>
+										) : rateLimitCountdown > 0 ? (
+											<FiClock className="h-5 w-5" aria-hidden="true" />
+										) : (
+											<FiSend className="h-5 w-5" aria-hidden="true" />
+										)}
+									</motion.button>
+								</motion.div>
+							</div>
 						</div>
 					</form>
-					<div className="mt-4 text-xs text-center text-muted-foreground">
-						<p>
-							This provides general legal information only. Consult a qualified
-							lawyer for specific legal advice.
+					
+					<motion.div 
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.2 }}
+						className="mt-6 text-center space-y-2"
+					>
+						<p className="text-xs text-muted-foreground/80">
+							<span className="inline-flex items-center gap-1">
+								💡 <span className="font-medium">General legal information only</span> • Not professional legal advice
+							</span>
 						</p>
 						{rateLimitCountdown > 0 && (
-							<p className="text-amber-600 dark:text-amber-400 mt-1">
-								Rate limiting helps manage API quotas. Free tier has limited
-								requests per minute.
-							</p>
+							<motion.p 
+								initial={{ opacity: 0, scale: 0.9 }}
+								animate={{ opacity: 1, scale: 1 }}
+								className="text-xs text-amber-600 dark:text-amber-400 font-medium"
+							>
+								⏱️ Rate limiting active • Helps manage API quotas
+							</motion.p>
 						)}
-					</div>
+					</motion.div>
 				</div>
 			</div>
 		</div>

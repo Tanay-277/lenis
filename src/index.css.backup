@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-@import url("https://fonts.googleapis.com/css?family=Poppins:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -84,7 +83,6 @@
 @theme inline {
 	--font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 	--font-display: 'Space Grotesk', 'Inter', sans-serif;
-	--font-pop:"Poppins",sans-serif;
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -189,7 +187,7 @@
 }
 
 /* Premium Shadows */
-/* .shadow-premium {
+.shadow-premium {
 	box-shadow: 
 		0 0 0 1px rgba(99, 102, 241, 0.05),
 		0 2px 4px rgba(99, 102, 241, 0.1),
@@ -201,16 +199,16 @@
 		0 0 0 1px rgba(96, 165, 250, 0.1),
 		0 2px 4px rgba(96, 165, 250, 0.15),
 		0 12px 24px rgba(96, 165, 250, 0.15);
-} */
+}
 
 /* Glow Effects */
-/* .glow-primary {
+.glow-primary {
 	box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
 }
 
 .dark .glow-primary {
 	box-shadow: 0 0 30px rgba(96, 165, 250, 0.5);
-} */
+}
 
 /* Animations */
 @keyframes float {

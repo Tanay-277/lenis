@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { FiMoon, FiSun } from "react-icons/fi";
 import { useTheme } from "../providers/ThemeProvider";
-import { Button } from "./ui/button";
 import {
 	Tooltip,
 	TooltipContent,
@@ -27,32 +26,32 @@ export default function ThemeToggle() {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger asChild>
-					<Button
-						variant="outline"
-						size="icon"
-						className="rounded-full h-9 w-9 border-border/60 bg-background/95 backdrop-blur-sm shadow-sm hover:bg-accent hover:text-accent-foreground transition-all"
+					<motion.button
+						className="relative rounded-full h-10 w-10 border border-border/50 bg-card/60 backdrop-blur-sm shadow-premium hover:shadow-glow transition-all flex items-center justify-center"
 						onClick={() => toggleTheme()}
 						aria-label={
 							isDark ? "Switch to light theme" : "Switch to dark theme"
 						}
+						whileHover={{ scale: 1.05 }}
+						whileTap={{ scale: 0.95 }}
 					>
 						<AnimatePresence mode="wait" initial={false}>
 							<motion.div
 								key={isDark ? "dark" : "light"}
-								initial={{ y: -20, opacity: 0 }}
-								animate={{ y: 0, opacity: 1 }}
-								exit={{ y: 20, opacity: 0 }}
-								transition={{ duration: 0.2 }}
+								initial={{ y: -20, opacity: 0, rotate: -90 }}
+								animate={{ y: 0, opacity: 1, rotate: 0 }}
+								exit={{ y: 20, opacity: 0, rotate: 90 }}
+								transition={{ duration: 0.3 }}
 								className="h-full w-full flex items-center justify-center"
 							>
 								{isDark ? (
-									<FiMoon className="h-4 w-4 text-secondary-400" />
+									<FiMoon className="h-5 w-5 text-secondary" />
 								) : (
-									<FiSun className="h-4 w-4 text-amber-500" />
+									<FiSun className="h-5 w-5 text-amber-500" />
 								)}
 							</motion.div>
 						</AnimatePresence>
-					</Button>
+					</motion.button>
 				</TooltipTrigger>
 				<TooltipContent sideOffset={5}>
 					<span>{isDark ? "Switch to light mode" : "Switch to dark mode"}</span>
