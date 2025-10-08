@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_KEY);
-const flashModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-const proModel = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+const flashModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const proModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 // Rate limiting implementation
 class RateLimiter {
@@ -141,7 +141,7 @@ Respond with ONLY the JSON, no explanations, no markdown, no other text.`;
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: jsonPrompt }] }],
       generationConfig: {
-        maxOutputTokens: 800,
+        maxOutputTokens: 2000,
         temperature: 0.1, // Very low temperature for consistent JSON
         topP: 0.8,
         topK: 10
@@ -149,7 +149,7 @@ Respond with ONLY the JSON, no explanations, no markdown, no other text.`;
     });
     
     const response = await result.response;
-    let text = response.text().trim();
+    let text = (await response.text()).trim();
     
     // Clean up the response - remove markdown code blocks if present
     text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '');

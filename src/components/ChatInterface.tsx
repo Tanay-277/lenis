@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import { HiOutlineChatAlt, HiOutlineLightBulb } from "react-icons/hi";
 import { motion } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 import {
 	getStructuredChatResponse,
 	StructuredChatResponse,
@@ -227,9 +228,9 @@ const ChatInterface = () => {
 		switch (item.type) {
 			case "text":
 				return (
-					<p key={index} className="mb-3 text-foreground">
-						{item.content}
-					</p>
+					<div key={index} className="mb-3 text-foreground prose prose-invert">
+						<ReactMarkdown>{item.content}</ReactMarkdown>
+					</div>
 				);
 
 			case "list":
@@ -319,17 +320,6 @@ const ChatInterface = () => {
 
 	return (
 		<div className="h-full flex flex-col" aria-label="Chat interface">
-			{/* Rate limit warning */}
-			{/* {rateLimitCountdown > 0 && (
-				<Alert className="mx-4 mt-4 border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20">
-					<FiClock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-					<AlertDescription className="text-amber-800 dark:text-amber-200">
-						Rate limit active. Please wait {rateLimitCountdown} seconds before
-						sending another message.
-					</AlertDescription>
-				</Alert>
-			)} */}
-
 			<div
 				className="flex-1 overflow-y-auto scroll-style p-4 space-y-4"
 				role="log"
