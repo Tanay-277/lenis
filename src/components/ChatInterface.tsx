@@ -369,7 +369,7 @@ const ChatInterface = () => {
 									>
 										<Button
 											variant={
-												activeSuggestion === suggestion ? "default" : "outline"
+												activeSuggestion === suggestion ? "secondary" : "outline"
 											}
 											className="w-fit justify-start text-left h-auto py-2.5 px-4 font-normal text-foreground dark:text-foreground "
 											size={"default"}

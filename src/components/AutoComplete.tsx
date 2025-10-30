@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { ChevronsUpDown } from "lucide-react";
+import { Button } from "./ui/button";
 
 interface AutocompleteInputProps {
 	id: string;
@@ -70,20 +72,26 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
 				{label}
 				{required && " *"}
 			</Label>
-			<Input
-				id={id}
-				name={name}
-				autoComplete="off"
-				value={value}
-				onChange={(e) => {
-					onChange(e);
-					setShowOptions(true);
-				}}
-				onFocus={() => setShowOptions(true)}
-				placeholder={placeholder}
-				disabled={disabled}
-				required={required}
-			/>
+			<div className="flex items-center relative cursor-pointer">
+				<Input
+					id={id}
+					name={name}
+					autoComplete="off"
+					value={value}
+					onChange={(e) => {
+						onChange(e);
+						setShowOptions(true);
+					}}
+					onFocus={() => setShowOptions(true)}
+					placeholder={placeholder}
+					disabled={disabled}
+					required={required}
+					className="pr-2"
+				/>
+				<Button variant={"ghost"} size={"icon"} className="absolute right-0">
+					<ChevronsUpDown className="size-4  text-white/50  z-10" />
+				</Button>
+			</div>
 			{showOptions && filteredOptions.length > 0 && (
 				<ul className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200/10 bg-white shadow-md dark:bg-card">
 					{filteredOptions.map((option) => (

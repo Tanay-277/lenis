@@ -16,13 +16,13 @@ interface ChatModel {
 
 // Response type is defined by the ChatModel interface above
 
-// Rate limiting implementation
+// Rate limiting implementation - OPTIMIZED
 class RateLimiter {
   private requests: number[] = [];
-  private readonly maxRequestsPerMinute = 15;
+  private readonly maxRequestsPerMinute = 30; // Increased from 15
   private readonly timeWindow = 60000;
   private lastRequestTime = 0;
-  private readonly minInterval = 4000;
+  private readonly minInterval = 1000; // Reduced from 4000ms to 1000ms
 
   canMakeRequest(): boolean {
     const now = Date.now();
@@ -190,10 +190,10 @@ Respond with ONLY the JSON, no explanations, no markdown, no other text.`;
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: jsonPrompt }] }],
       generationConfig: {
-        maxOutputTokens: 8192, // Increased for more detailed responses
-        temperature: 0.2,      // Slightly increased for more natural language while maintaining consistency
-        topP: 0.95,           // Increased for more nuanced responses
-        topK: 40              // Increased for more diverse vocabulary
+        maxOutputTokens: 4096, // Reduced from 8192 for faster responses
+        temperature: 0.3,      // Optimized for balance between speed and quality
+        topP: 0.9,            // Slightly reduced for faster token selection
+        topK: 30              // Reduced for faster processing
       }
     });
     
@@ -408,10 +408,10 @@ ${text}`;
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: legalAnalysisPrompt }] }],
       generationConfig: {
-        maxOutputTokens: 8192,
+        maxOutputTokens: 3072, // Reduced from 8192 for faster analysis
         temperature: 0.3,
-        topP: 0.8,
-        topK: 20
+        topP: 0.85,
+        topK: 25
       }
     });
     const response = await result.response;
@@ -426,10 +426,10 @@ export const getGeminiResponse = async (prompt: string): Promise<string> => {
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: `You are a legal advisor for Indian law. ${prompt}` }] }],
       generationConfig: {
-        maxOutputTokens: 500,
+        maxOutputTokens: 800, // Increased slightly for better responses
         temperature: 0.3,
-        topP: 0.8,
-        topK: 20
+        topP: 0.85,
+        topK: 25
       }
     });
     const response = await result.response;
@@ -454,10 +454,10 @@ export const startGeminiChat = (systemInstruction?: string): ChatModel => {
     const chat = flashModel.startChat({
       history: [],
       generationConfig: {
-        maxOutputTokens: 600,
+        maxOutputTokens: 1024, // Increased from 600 for better responses
         temperature: 0.3,
-        topP: 0.8,
-        topK: 20,
+        topP: 0.85,
+        topK: 25,
       },
       systemInstruction: systemInstruction || "You are a legal advisor assistant for Indian law. Provide helpful, accurate legal information.",
     });

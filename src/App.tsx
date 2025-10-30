@@ -68,7 +68,7 @@ function App() {
 							initial={{ x: -50, opacity: 0 }}
 							animate={{ x: 0, opacity: 1 }}
 							transition={{ delay: 0.2 }}
-							className="lg:w-20 bg-light-300 dark:bg-dark-200 border-r border-dashed border-gray-300 dark:border-gray-800 flex lg:flex-col justify-between p-2"
+							className="lg:w-20 bg-light-300 dark:bg-dark-200 border-r border-dashed border-gray-300 dark:border-white/10 flex lg:flex-col justify-between p-2"
 						>
 							<div className="flex lg:flex-col gap-2 items-center">
 								<button
@@ -127,7 +127,7 @@ function App() {
 								initial={{ y: -20, opacity: 0 }}
 								animate={{ y: 0, opacity: 1 }}
 								transition={{ delay: 0.4 }}
-								className="bg-light-300 dark:bg-dark-200 border-b border-dashed border-gray-300 dark:border-gray-800 p-4 flex items-center justify-between"
+								className="bg-light-300 dark:bg-dark-200 border-b border-dashed border-gray-300 dark:border-white/10 p-4 flex items-center justify-between"
 							>
 								<div className="flex items-center space-x-3">
 									<div className="h-8 w-8 bg-gradient-to-br from-primary-500 to-primary-700 dark:from-secondary-500 dark:to-secondary-800 rounded-lg flex items-center justify-center shadow-light-glow dark:shadow-glow">
@@ -159,7 +159,11 @@ function App() {
 									transition={{ duration: 0.3 }}
 									className="h-[calc(100vh-64px)] overflow-auto p-4 lg:p-6 bg-light-200 dark:bg-dark-300 transition-colors duration-300"
 								>
-									{activeComponent === "caseAnalysis" ? <CaseAnalysis /> : <ChatInterface />}
+									{activeComponent === "caseAnalysis" ? (
+										<CaseAnalysis />
+									) : (
+										<ChatInterface />
+									)}
 								</motion.div>
 							</AnimatePresence>
 						</div>

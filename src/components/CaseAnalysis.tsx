@@ -1,31 +1,16 @@
 import React, { useState } from "react";
-import {
-	HiOutlineScale,
-	HiOutlineDocumentText,
-	HiOutlineLightBulb,
-} from "react-icons/hi";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import {
-	Gavel,
-	AlertTriangle,
-	Clock,
-	Copy,
-	Check,
-	FileText,
-} from "lucide-react";
+import { HiOutlineScale } from "react-icons/hi";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Gavel, AlertTriangle, Clock, Copy, Check } from "lucide-react";
 import { analyzeLegalCase } from "../utils/gemini";
 import { Card, CardHeader, CardContent, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
-import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
 
-import {
-	canMakeRequest,
-	getTimeUntilNextRequest,
-} from "../utils/gemini";
+import { canMakeRequest, getTimeUntilNextRequest } from "../utils/gemini";
 import AutocompleteInput from "./AutoComplete";
 
 interface CaseAnalysisResult {
@@ -142,7 +127,7 @@ const CaseAnalysis = () => {
 
 			// Get the detailed legal analysis
 			const legalAssessment = await analyzeLegalCase(caseText);
-			
+
 			// Create a result object with the markdown formatted analysis
 			const analysisResult: CaseAnalysisResult = {
 				title: formData.caseType || "Legal Case Analysis",
@@ -152,14 +137,19 @@ const CaseAnalysis = () => {
 				recommendedActions: [],
 				potentialRisks: [],
 				estimatedCosts: "Consult with a lawyer for detailed cost estimates",
-				timeline: "Timeline varies based on case complexity and court procedures",
+				timeline:
+					"Timeline varies based on case complexity and court procedures",
 				nextSteps: [],
 			};
 
 			setAnalysisResult(analysisResult);
 		} catch (error) {
 			console.error("Error analyzing case:", error);
-			setError(error instanceof Error ? error.message : "Failed to analyze case. Please try again.");
+			setError(
+				error instanceof Error
+					? error.message
+					: "Failed to analyze case. Please try again."
+			);
 		} finally {
 			setIsAnalyzing(false);
 		}
@@ -209,336 +199,264 @@ DISCLAIMER: This is general legal information only, not specific legal advice. C
 	};
 
 	return (
-		<div className="h-full overflow-auto p-2">
-			<div className="text-center mb-8">
-				<h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-					AI-Powered Legal Case Analysis
-				</h1>
-				<p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
-					Get comprehensive legal analysis and strategy recommendations powered
-					by AI
+		<div className="h-full overflow-auto">
+			{/* Header Section */}
+			<div className="mb-6">
+				<h1 className="text-2xl font-semibold mb-2">Case Analysis</h1>
+				<p className="text-muted-foreground text-sm">
+					Get comprehensive legal analysis powered by AI
 				</p>
-				<div className="mt-4 text-sm text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg max-w-xl mx-auto">
-					⚖️ This provides general legal information only. Consult a qualified
-					lawyer for specific legal advice.
-				</div>
 			</div>
 
-			{/* Rate limit warning */}
+			{/* Alerts */}
 			{rateLimitCountdown > 0 && (
-				<Alert className="max-w-4xl mx-auto mb-6 border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20">
+				<Alert className="mb-6 border-amber-500/20 bg-amber-50 dark:bg-amber-950/20">
 					<Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-					<AlertDescription className="text-amber-800 dark:text-amber-200">
-						AI analysis will be available in {rateLimitCountdown} seconds due to
-						rate limits.
+					<AlertDescription className="text-amber-800 dark:text-amber-200 text-sm">
+						AI analysis available in {rateLimitCountdown}s due to rate limits.
 					</AlertDescription>
 				</Alert>
 			)}
 
-			{/* Error display */}
 			{error && (
-				<Alert className="max-w-4xl mx-auto mb-6 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
+				<Alert className="mb-6 border-red-500/20 bg-red-50 dark:bg-red-950/20">
 					<AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
-					<AlertDescription className="text-red-800 dark:text-red-200">
+					<AlertDescription className="text-red-800 dark:text-red-200 text-sm">
 						{error}
 					</AlertDescription>
 				</Alert>
 			)}
 
-			<form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-6">
-				<div className="grid gap-6 lg:grid-cols-2">
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<HiOutlineScale className="h-5 w-5" />
-								Case Information
-							</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="space-y-2">
+			{/* Form Section */}
+			<form onSubmit={handleSubmit} className="space-y-6">
+				<Card className="border-border/50">
+					<CardContent className="pt-6 space-y-6">
+						{/* Quick Info Row */}
+						<div className="grid gap-4 sm:grid-cols-2">
+							<div>
 								<AutocompleteInput
 									id="caseType"
 									name="caseType"
-									label="Case Type"
+									label="Case Type *"
 									value={formData.caseType}
 									onChange={handleInputChange}
 									options={caseTypeOptions}
-									placeholder="e.g., Contract Dispute, Property Case, Consumer Complaint"
+									placeholder="Select or type case type"
 									disabled={isAnalyzing}
 									required
 								/>
 							</div>
-							<div className="space-y-2">
+							<div>
 								<AutocompleteInput
 									id="location"
 									name="location"
-									label="Location/Jurisdiction"
+									label="Jurisdiction *"
 									value={formData.location}
 									onChange={handleInputChange}
 									options={locationOptions}
-									placeholder="e.g., Mumbai, Delhi High Court, Kerala"
+									placeholder="Select location"
 									disabled={isAnalyzing}
 									required
 								/>
 							</div>
-						</CardContent>
-					</Card>
+						</div>
 
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<HiOutlineDocumentText className="h-5 w-5" />
-								Case Details
-							</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="space-y-2">
-								<Label htmlFor="caseDescription">Case Description *</Label>
-								<Textarea
-									id="caseDescription"
-									name="caseDescription"
-									value={formData.caseDescription}
-									onChange={handleInputChange}
-									placeholder="Provide detailed description of your legal situation, including timeline, parties involved, and key facts..."
-									className="min-h-[100px]"
-									required
-									disabled={isAnalyzing}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="specificQuestion">
-									Specific Legal Question *
-								</Label>
-								<Textarea
-									id="specificQuestion"
-									name="specificQuestion"
-									value={formData.specificQuestion}
-									onChange={handleInputChange}
-									placeholder="What specific legal guidance do you need? e.g., 'What are my options for resolution?', 'What documents should I prepare?'"
-									className="min-h-[80px]"
-									required
-									disabled={isAnalyzing}
-								/>
-							</div>
-						</CardContent>
-					</Card>
-				</div>
+						{/* Case Description */}
+						<div>
+							<Label
+								htmlFor="caseDescription"
+								className="text-base font-medium mb-2 block"
+							>
+								Case Description *
+							</Label>
+							<Textarea
+								id="caseDescription"
+								name="caseDescription"
+								value={formData.caseDescription}
+								onChange={handleInputChange}
+								placeholder="Describe your legal situation in detail. Include timeline, parties involved, key facts, and any relevant documentation..."
+								className="min-h-[140px] resize-none"
+								required
+								disabled={isAnalyzing}
+							/>
+						</div>
 
-				<div className="flex justify-center">
-					<Button
-						type="submit"
-						size="lg"
-						className="flex items-center gap-2"
-						disabled={isAnalyzing || rateLimitCountdown > 0}
-					>
-						{isAnalyzing ? (
-							<>
-								<div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-								Analyzing Case...
-							</>
-						) : (
-							<>
-								<Gavel className="h-5 w-5" />
-								Analyze Case with AI
-							</>
-						)}
-					</Button>
-				</div>
+						{/* Specific Question */}
+						<div>
+							<Label
+								htmlFor="specificQuestion"
+								className="text-base font-medium mb-2 block"
+							>
+								What do you need help with? *
+							</Label>
+							<Textarea
+								id="specificQuestion"
+								name="specificQuestion"
+								value={formData.specificQuestion}
+								onChange={handleInputChange}
+								placeholder="What specific legal guidance or questions do you have? (e.g., 'What are my legal options?', 'What documents do I need?')"
+								className="min-h-[100px] resize-none"
+								required
+								disabled={isAnalyzing}
+							/>
+						</div>
+
+						{/* Disclaimer */}
+						<div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-900/30">
+							<AlertTriangle className="size-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
+							<p className="text-xs text-amber-800 dark:text-amber-200">
+								<span>Disclaimer</span> : This AI provides general legal
+								information only, not specific legal advice. Always consult a
+								qualified lawyer for your situation.
+							</p>
+						</div>
+
+						{/* Submit Button */}
+						<Button
+							type="submit"
+							size="lg"
+							className="w-full sm:w-auto"
+							disabled={isAnalyzing || rateLimitCountdown > 0}
+						>
+							{isAnalyzing ? (
+								<>
+									<div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+									Analyzing...
+								</>
+							) : (
+								<>
+									<Gavel className="h-5 w-5 mr-2" />
+									Analyze Case
+								</>
+							)}
+						</Button>
+					</CardContent>
+				</Card>
 			</form>
 
 			{/* Analysis Results */}
 			{analysisResult && (
-				<div className="mt-12 max-w-4xl mx-auto space-y-6">
-					<div className="flex items-center justify-between">
-						<h2 className="text-2xl font-bold">AI Legal Analysis Results</h2>
+				<div className="mt-10 space-y-6">
+					{/* Results Header */}
+					<div className="flex items-center justify-between pb-4 border-b">
+						<div>
+							<h2 className="text-xl font-semibold">Analysis Results</h2>
+							<p className="text-sm text-muted-foreground mt-1">
+								{formData.caseType} • {formData.location}
+							</p>
+						</div>
 						<Button
 							variant="outline"
 							size="sm"
 							onClick={copyFullAnalysis}
-							className="flex items-center gap-2"
+							className="gap-2"
 						>
 							{copiedSection === "full" ? (
 								<>
-									<Check className="h-4 w-4 text-green-500" /> Copied!
+									<Check className="h-4 w-4 text-green-600" />
+									Copied
 								</>
 							) : (
 								<>
-									<Copy className="h-4 w-4" /> Copy Full Analysis
+									<Copy className="h-4 w-4" />
+									Copy All
 								</>
 							)}
 						</Button>
 					</div>
 
-					<div className="grid gap-6 lg:grid-cols-2">
-						{/* Summary Card */}
+					<div className="space-y-6">
+						{/* Main Legal Assessment - Full Width */}
 						<Card>
-							<CardHeader>
-								<CardTitle className="flex items-center gap-2">
-									<FileText className="h-5 w-5" />
-									Case Summary
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<p className="text-foreground mb-4">{analysisResult.summary}</p>
-								<Badge variant="secondary" className="mb-2">
-									{formData.caseType} - {formData.location}
-								</Badge>
-							</CardContent>
-						</Card>
-
-						{/* Legal Assessment */}
-						<Card>
-							<CardHeader>
-								<CardTitle className="flex items-center gap-2">
-									<HiOutlineScale className="h-5 w-5" />
+							<CardHeader className="pb-3">
+								<CardTitle className="flex items-center gap-2 text-base">
+									<HiOutlineScale className="h-5 w-5 text-primary" />
 									Legal Assessment
 								</CardTitle>
 							</CardHeader>
 							<CardContent>
-									<div className="prose dark:prose-invert max-w-none">
-										<ReactMarkdown 
-											remarkPlugins={[remarkGfm]}
-											components={{
-												p: ({ children }) => <p className="text-foreground my-2">{children}</p>,
-												ul: ({ children }) => <ul className="list-disc list-inside my-4">{children}</ul>,
-												li: ({ children }) => <li className="text-foreground my-1">{children}</li>,
-												h3: ({ children }) => <h3 className="text-foreground font-semibold mt-4 mb-2">{children}</h3>,
-												h4: ({ children }) => <h4 className="text-foreground font-medium mt-3 mb-2">{children}</h4>,
-												blockquote: ({ children }) => (
-													<blockquote className="border-l-4 border-gray-200 dark:border-gray-700 pl-4 my-4 italic">
-														{children}
-													</blockquote>
-												),
-											}}
-										>
-											{analysisResult.legalAssessment}
-										</ReactMarkdown>
-									</div>
-							</CardContent>
-						</Card>
-
-						{/* Key Issues */}
-						<Card>
-							<CardHeader>
-								<CardTitle className="flex items-center gap-2">
-									<AlertTriangle className="h-5 w-5" />
-									Key Legal Issues
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<ul className="space-y-2">
-									{analysisResult.keyIssues.map((issue, index) => (
-										<li key={index} className="flex items-start gap-2">
-											<span className="text-primary mt-1">•</span>
-											<span className="text-foreground">{issue}</span>
-										</li>
-									))}
-								</ul>
-							</CardContent>
-						</Card>
-
-						{/* Recommended Actions */}
-						<Card>
-							<CardHeader>
-								<CardTitle className="flex items-center gap-2">
-									<HiOutlineLightBulb className="h-5 w-5" />
-									Recommended Actions
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<ul className="space-y-2">
-									{analysisResult.recommendedActions.map((action, index) => (
-										<li key={index} className="flex items-start gap-2">
-											<span className="text-green-600 mt-1">✓</span>
-											<span className="text-foreground">{action}</span>
-										</li>
-									))}
-								</ul>
-							</CardContent>
-						</Card>
-
-						{/* Potential Risks */}
-						{analysisResult.potentialRisks.length > 0 && (
-							<Card>
-								<CardHeader>
-									<CardTitle className="flex items-center gap-2">
-										<AlertTriangle className="h-5 w-5 text-orange-500" />
-										Potential Risks
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<ul className="space-y-2">
-										{analysisResult.potentialRisks.map((risk, index) => (
-											<li key={index} className="flex items-start gap-2">
-												<span className="text-orange-500 mt-1">⚠</span>
-												<span className="text-foreground">{risk}</span>
-											</li>
-										))}
-									</ul>
-								</CardContent>
-							</Card>
-						)}
-
-						{/* Next Steps */}
-						<Card>
-							<CardHeader>
-								<CardTitle className="flex items-center gap-2">
-									<Gavel className="h-5 w-5" />
-									Next Steps
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<ul className="space-y-2">
-									{analysisResult.nextSteps.map((step, index) => (
-										<li key={index} className="flex items-start gap-2">
-											<span className="text-blue-600 mt-1">{index + 1}.</span>
-											<span className="text-foreground">{step}</span>
-										</li>
-									))}
-								</ul>
-							</CardContent>
-						</Card>
-					</div>
-
-					{/* Legal Disclaimer */}
-					<Card className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20">
-						<CardContent className="pt-6">
-							<div className="flex items-start gap-3">
-								<AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5 shrink-0" />
-								<div>
-									<h4 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">
-										Important Legal Disclaimer
-									</h4>
-									<p className="text-sm text-yellow-700 dark:text-yellow-300">
-										This AI-generated analysis provides general legal
-										information only and is not a substitute for professional
-										legal advice. Laws vary by jurisdiction and individual
-										circumstances. Always consult with a qualified lawyer
-										licensed to practice in your jurisdiction for specific legal
-										advice regarding your situation.
-									</p>
+								<div className="prose prose-sm dark:prose-invert max-w-none">
+									<ReactMarkdown
+										remarkPlugins={[remarkGfm]}
+										components={{
+											p: ({ children }) => (
+												<p className="text-foreground/90 my-3 leading-relaxed">
+													{children}
+												</p>
+											),
+											ul: ({ children }) => (
+												<ul className="list-disc pl-5 my-4 space-y-2">
+													{children}
+												</ul>
+											),
+											ol: ({ children }) => (
+												<ol className="list-decimal pl-5 my-4 space-y-2">
+													{children}
+												</ol>
+											),
+											li: ({ children }) => (
+												<li className="text-foreground/90">{children}</li>
+											),
+											h3: ({ children }) => (
+												<h3 className="text-foreground font-semibold text-lg mt-6 mb-3">
+													{children}
+												</h3>
+											),
+											h4: ({ children }) => (
+												<h4 className="text-foreground font-medium mt-4 mb-2">
+													{children}
+												</h4>
+											),
+											strong: ({ children }) => (
+												<strong className="font-semibold text-foreground">
+													{children}
+												</strong>
+											),
+											blockquote: ({ children }) => (
+												<blockquote className="border-l-4 border-primary/30 pl-4 my-4 italic text-muted-foreground">
+													{children}
+												</blockquote>
+											),
+										}}
+									>
+										{analysisResult.legalAssessment}
+									</ReactMarkdown>
 								</div>
+							</CardContent>
+						</Card>
+
+						{/* Bottom Disclaimer */}
+						<div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-900/30">
+							<AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
+							<div>
+								<h4 className="font-medium text-amber-900 dark:text-amber-200 mb-1 text-sm">
+									Legal Disclaimer
+								</h4>
+								<p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+									This AI-generated analysis provides general legal information
+									only and is not a substitute for professional legal advice.
+									Laws vary by jurisdiction and individual circumstances. Always
+									consult with a qualified lawyer licensed to practice in your
+									jurisdiction for specific legal advice regarding your
+									situation.
+								</p>
 							</div>
-						</CardContent>
-					</Card>
+						</div>
+					</div>
 				</div>
 			)}
 
 			{/* Empty state when no results */}
 			{!analysisResult && !isAnalyzing && (
-				<div className="mt-12 text-center">
-					<Card>
-						<CardContent className="pt-6">
-							<Gavel className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-							<h3 className="text-xl font-semibold mb-2">
-								AI Legal Analysis Ready
-							</h3>
-							<p className="text-muted-foreground">
-								Fill out the form above and submit to get comprehensive
-								AI-powered legal analysis and recommendations for your case.
-							</p>
-						</CardContent>
-					</Card>
+				<div className="mt-12 text-center py-12">
+					<div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+						<Gavel className="h-8 w-8 text-muted-foreground" />
+					</div>
+					<h3 className="text-lg font-medium mb-2">Ready to Analyze</h3>
+					<p className="text-sm text-muted-foreground max-w-md mx-auto">
+						Fill out the form above to get comprehensive AI-powered legal
+						analysis for your case.
+					</p>
 				</div>
 			)}
 		</div>
